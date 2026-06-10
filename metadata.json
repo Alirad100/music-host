@@ -5,5 +5,11 @@
     "artist": "unknown",
     "src": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/i_got_you_on_tape_somersault.mp3",
     "cover": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/i_got_you_on_tape_somersault.png"
+  },
+  {
+    "title": "unknown",
+    "artist": "unknown",
+    "src": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/dark_red.mp3",
+    "cover": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/dark_red.png"
   }
 ]
