@@ -23,5 +23,11 @@
     "artist": "unknown",
     "src": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/skyfall_lyric_video_adele.mp3",
     "cover": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/skyfall_lyric_video_adele.png"
+  },
+  {
+    "title": "unknown",
+    "artist": "unknown",
+    "src": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/love_story_indila.mp3",
+    "cover": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/love_story_indila.png"
   }
 ]
