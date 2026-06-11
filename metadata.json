@@ -11,5 +11,11 @@
     "artist": "Steve Lacy",
     "src": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/dark_red.mp3",
     "cover": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/dark_red.png"
+  },
+  {
+    "title": "unknown",
+    "artist": "unknown",
+    "src": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/awacagqaaxkbaameaiqzq8eec63kbeftyyiqdbjuzwuaau4caaigrflrgpapebqg5re7ba.mp3",
+    "cover": "https://cdn.jsdelivr.net/gh/Alirad100/music-host@main/awacagqaaxkbaameaiqzq8eec63kbeftyyiqdbjuzwuaau4caaigrflrgpapebqg5re7ba.png"
   }
 ]
