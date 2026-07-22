@@ -1,0 +1,150 @@
+/**
+ * افزودن ویرایش قیمت در ویرایش سریع محصولات ووکامرس
+ * نسخه اصلاح شده
+ */
+
+/* =====================================================
+ * 1. افزودن فیلدهای قیمت به ویرایش سریع
+ * ===================================================== */
+add_action(
+    'woocommerce_product_quick_edit_end',
+    'karan_add_price_fields_to_quick_edit'
+);
+
+function karan_add_price_fields_to_quick_edit() {
+    ?>
+    <div class="inline-edit-group">
+        <label class="alignleft">
+            <span class="title">قیمت عادی</span>
+            <span class="input-text-wrap">
+                <input type="text" name="_regular_price" class="text regular_price">
+            </span>
+        </label>
+        <label class="alignleft">
+            <span class="title">قیمت فروش ویژه</span>
+            <span class="input-text-wrap">
+                <input type="text" name="_sale_price" class="text sale_price">
+            </span>
+        </label>
+    </div>
+    <?php
+}
+
+/* =====================================================
+ * 2. اضافه کردن قیمت فعلی به اطلاعات هر محصول
+ * ===================================================== */
+add_filter(
+    'post_class',
+    'karan_add_price_data_to_product_row',
+    10,
+    3
+);
+
+function karan_add_price_data_to_product_row( $classes, $class, $post_id ) {
+    if ( is_admin() && get_post_type( $post_id ) === 'product' ) {
+        $product = wc_get_product( $post_id );
+        if ( $product ) {
+            $regular_price = $product->get_regular_price();
+            $sale_price    = $product->get_sale_price();
+
+            // بدون sanitize_html_class تا نقطه اعشار حفظ شود
+            $classes[] = 'karan-regular-price-' . $regular_price;
+            $classes[] = 'karan-sale-price-'    . $sale_price;
+        }
+    }
+    return $classes;
+}
+
+/* =====================================================
+ * 3. ارسال قیمت فعلی به ویرایش سریع
+ * ===================================================== */
+add_action(
+    'admin_footer-edit.php',
+    'karan_quick_edit_price_script'
+);
+
+function karan_quick_edit_price_script() {
+    global $post_type;
+    if ( $post_type !== 'product' ) {
+        return;
+    }
+    ?>
+    <script>
+    jQuery(function($) {
+        var originalEdit = inlineEditPost.edit;
+        inlineEditPost.edit = function(id) {
+            originalEdit.apply(this, arguments);
+
+            var postId;
+            if ( typeof id === 'object' ) {
+                postId = parseInt( this.getId(id), 10 );
+            } else {
+                postId = parseInt( id, 10 );
+            }
+
+            if ( ! postId ) {
+                return;
+            }
+
+            var editRow = $( '#edit-' + postId );
+            var postRow = $( '#post-' + postId );
+
+            if ( ! editRow.length || ! postRow.length ) {
+                return;
+            }
+
+            var rowClasses = postRow.attr('class');
+
+            var regularPrice = '';
+            var salePrice = '';
+
+            // از [^\s]* استفاده شده تا قیمت خالی هم خوانده شود
+            var regularMatch = rowClasses.match( /karan-regular-price-([^\s]*)/ );
+            var saleMatch    = rowClasses.match( /karan-sale-price-([^\s]*)/ );
+
+            if ( regularMatch ) {
+                regularPrice = regularMatch[1];
+            }
+            if ( saleMatch ) {
+                salePrice = saleMatch[1];
+            }
+
+            editRow.find('input[name="_regular_price"]').val( regularPrice );
+            editRow.find('input[name="_sale_price"]').val( salePrice );
+        };
+    });
+    </script>
+    <?php
+}
+
+/* =====================================================
+ * 4. ذخیره قیمت‌ها در ویرایش سریع
+ * ===================================================== */
+add_action(
+    'woocommerce_product_quick_edit_save',
+    'karan_save_quick_edit_prices'
+);
+
+function karan_save_quick_edit_prices( $product ) {
+    if ( ! isset( $_POST['_regular_price'] ) && ! isset( $_POST['_sale_price'] ) ) {
+        return;
+    }
+
+    /* قیمت عادی */
+    if ( isset( $_POST['_regular_price'] ) ) {
+        $regular_price = wc_format_decimal( wp_unslash( $_POST['_regular_price'] ) );
+        $product->set_regular_price( $regular_price );
+    }
+
+    /* قیمت فروش ویژه */
+    if ( isset( $_POST['_sale_price'] ) ) {
+        $sale_price = wc_format_decimal( wp_unslash( $_POST['_sale_price'] ) );
+        if ( $sale_price === '' ) {
+            $product->set_sale_price( '' );
+        } else {
+            $product->set_sale_price( $sale_price );
+        }
+    }
+
+    $product->save();
+}
