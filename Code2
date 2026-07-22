@@ -1,0 +1,59 @@
+// 1) نمایش فیلدهای قیمت در فرم Quick Edit
+add_action( 'woocommerce_product_quick_edit_fields', function() {
+    global $product_object;
+    $regular_price = $product_object ? $product_object->get_regular_price() : '';
+    $sale_price    = $product_object ? $product_object->get_sale_price() : '';
+    ?>
+    <label>
+        <span class="title"><?php esc_html_e( 'قیمت (تومان)', 'woocommerce' ); ?></span>
+        <span class="input-text-wrap">
+            <input type="text" name="_regular_price" class="text regular_price" placeholder="<?php esc_attr_e( 'قیمت', 'woocommerce' ); ?>" value="<?php echo esc_attr( $regular_price ); ?>" />
+        </span>
+    </label>
+    <label>
+        <span class="title"><?php esc_html_e( 'قیمت حراج (تومان)', 'woocommerce' ); ?></span>
+        <span class="input-text-wrap">
+            <input type="text" name="_sale_price" class="text sale_price" placeholder="<?php esc_attr_e( 'قیمت حراج', 'woocommerce' ); ?>" value="<?php echo esc_attr( $sale_price ); ?>" />
+        </span>
+    </label>
+    <?php
+}, 20 );
+
+// 2) پر کردن خودکار مقدار فعلی قیمت هنگام باز شدن Quick Edit
+add_action( 'admin_footer-edit.php', function() {
+    global $post_type;
+    if ( 'product' !== $post_type ) {
+        return;
+    }
+    ?>
+    <script>
+    jQuery(function($){
+        var wc_inline_edit = inlineEditPost.edit;
+        inlineEditPost.edit = function(id){
+            wc_inline_edit.apply(this, arguments);
+            var post_id = 0;
+            if (typeof(id) === 'object') { post_id = parseInt(this.getId(id)); }
+            if (post_id > 0) {
+                var row = $('#post-' + post_id);
+                var regular_price = $('.column-price .regular-price', row).text().replace(/[^0-9.]/g, '');
+                var sale_price = $('.column-price .sale-price', row).text().replace(/[^0-9.]/g, '');
+                $('input[name="_regular_price"]', '.inline-edit-row').val(regular_price);
+                $('input[name="_sale_price"]', '.inline-edit-row').val(sale_price);
+            }
+        };
+    });
+    </script>
+    <?php
+}, 100 );
+
+// 3) ذخیره‌سازی مقدار قیمت هنگام ثبت Quick Edit
+add_action( 'woocommerce_product_quick_edit_save', function( $product ) {
+    if ( isset( $_REQUEST['_regular_price'] ) ) {
+        $product->set_regular_price( wc_format_decimal( wp_unslash( $_REQUEST['_regular_price'] ) ) );
+    }
+    if ( isset( $_REQUEST['_sale_price'] ) ) {
+        $sale = wp_unslash( $_REQUEST['_sale_price'] );
+        $product->set_sale_price( '' === $sale ? '' : wc_format_decimal( $sale ) );
+    }
+    $product->save();
+} );
